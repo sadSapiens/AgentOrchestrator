@@ -2,7 +2,7 @@
 
 Мощный оркестратор AI-агентов, использующий Google Gemini API для выполнения сложных задач через координацию специализированных агентов.
 
-![Architecture](/.gemini/antigravity/brain/4d3a354d-6eff-4a0b-b07d-dafecd07fdfa/orchestrator_architecture_1768963988086.png)
+![Architecture](docs/images/architecture.png)
 
 ## ✨ Возможности
 

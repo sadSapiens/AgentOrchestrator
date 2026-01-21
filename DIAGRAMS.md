@@ -2,7 +2,7 @@
 
 ## Архитектура системы
 
-![Architecture](/.gemini/antigravity/brain/4d3a354d-6eff-4a0b-b07d-dafecd07fdfa/orchestrator_architecture_1768963988086.png)
+![Architecture](docs/images/architecture.png)
 
 ### Описание компонентов
 
@@ -36,7 +36,7 @@
 
 ## Процесс оркестрации
 
-![Workflow](/.gemini/antigravity/brain/4d3a354d-6eff-4a0b-b07d-dafecd07fdfa/workflow_diagram_1768964258118.png)
+![Workflow](docs/images/workflow.png)
 
 ### Пошаговый процесс
 
