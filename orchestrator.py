@@ -6,6 +6,7 @@ from typing import Dict, List, Optional, Any
 from agents import ResearcherAgent, AnalyzerAgent, WriterAgent, CoordinatorAgent
 from utils.logger import logger
 from utils.config import Config
+from utils.files import save_text_to_file
 
 
 class AgentOrchestrator:
@@ -46,7 +47,8 @@ class AgentOrchestrator:
         self, 
         agent_name: str, 
         task: str, 
-        context: Optional[Dict[str, Any]] = None
+        context: Optional[Dict[str, Any]] = None,
+        output_dir: Optional[str] = None
     ) -> str:
         """
         Выполнить задачу одним агентом
@@ -65,12 +67,16 @@ class AgentOrchestrator:
             agent = self.get_agent(agent_name)
             result = await agent.execute(task, context)
             logger.task_end(f"Задача для {agent_name}", success=True)
+            
+            if output_dir:
+                agent.save_result(result, directory=output_dir)
+                
             return result
         except Exception as e:
             logger.task_end(f"Задача для {agent_name}", success=False)
             raise
     
-    async def orchestrate_task(self, task: str) -> Dict[str, Any]:
+    async def orchestrate_task(self, task: str, output_dir: Optional[str] = None) -> Dict[str, Any]:
         """
         Оркестрировать выполнение сложной задачи несколькими агентами
         
@@ -146,6 +152,13 @@ class AgentOrchestrator:
             if results["steps"]:
                 last_step = results["steps"][-1]
                 results["final_result"] = last_step.get("result", "")
+                
+                if output_dir and results["final_result"]:
+                    save_text_to_file(
+                        results["final_result"], 
+                        directory=output_dir,
+                        prefix="orchestrated_result"
+                    )
             
             logger.task_end("Оркестрация задачи", success=True)
             return results
@@ -182,3 +195,55 @@ class AgentOrchestrator:
         """
         agent = self.get_agent(agent_name)
         return agent.get_history()
+
+    def save_session(self, filepath: str):
+        """
+        Сохранить сессию (состояние всех агентов)
+        
+        Args:
+            filepath: Путь к файлу
+        """
+        import json
+        
+        try:
+            state = {
+                name: agent.get_state()
+                for name, agent in self.agents.items()
+            }
+            
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump(state, f, ensure_ascii=False, indent=2)
+                
+            logger.info(f"[bold green]✓[/bold green] Сессия сохранена в {filepath}")
+            
+        except Exception as e:
+            logger.error(f"[bold red]✗[/bold red] Ошибка сохранения сессии: {str(e)}")
+            raise
+
+    def load_session(self, filepath: str):
+        """
+        Загрузить сессию (состояние всех агентов)
+        
+        Args:
+            filepath: Путь к файлу
+        """
+        import json
+        import os
+        
+        if not os.path.exists(filepath):
+            logger.error(f"[bold red]✗[/bold red] Файл сессии {filepath} не найден")
+            return
+            
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                state = json.load(f)
+                
+            for name, agent_state in state.items():
+                if name in self.agents:
+                    self.agents[name].set_state(agent_state)
+            
+            logger.info(f"[bold green]✓[/bold green] Сессия загружена из {filepath}")
+            
+        except Exception as e:
+            logger.error(f"[bold red]✗[/bold red] Ошибка загрузки сессии: {str(e)}")
+            raise

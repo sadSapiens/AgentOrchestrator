@@ -50,7 +50,7 @@ def print_agents_table(orchestrator: AgentOrchestrator):
     console.print(table)
 
 
-async def run_single_task(orchestrator: AgentOrchestrator, agent_name: str, task: str):
+async def run_single_task(orchestrator: AgentOrchestrator, agent_name: str, task: str, output_dir: str = None):
     """
     Выполнить задачу одним агентом
     
@@ -58,9 +58,10 @@ async def run_single_task(orchestrator: AgentOrchestrator, agent_name: str, task
         orchestrator: Экземпляр оркестратора
         agent_name: Имя агента
         task: Задача для выполнения
+        output_dir: Директория для сохранения результата
     """
     try:
-        result = await orchestrator.execute_single_task(agent_name, task)
+        result = await orchestrator.execute_single_task(agent_name, task, output_dir=output_dir)
         
         # Вывести результат
         console.print("\n")
@@ -75,16 +76,17 @@ async def run_single_task(orchestrator: AgentOrchestrator, agent_name: str, task
         sys.exit(1)
 
 
-async def run_orchestrated_task(orchestrator: AgentOrchestrator, task: str):
+async def run_orchestrated_task(orchestrator: AgentOrchestrator, task: str, output_dir: str = None):
     """
     Выполнить оркестрированную задачу
     
     Args:
         orchestrator: Экземпляр оркестратора
         task: Задача для выполнения
+        output_dir: Директория для сохранения результата
     """
     try:
-        results = await orchestrator.orchestrate_task(task)
+        results = await orchestrator.orchestrate_task(task, output_dir=output_dir)
         
         # Вывести план
         console.print("\n")
@@ -250,6 +252,25 @@ async def main():
         help='Запустить в интерактивном режиме'
     )
     
+    parser.add_argument(
+        '--output',
+        '-o',
+        type=str,
+        help='Директория для сохранения результатов'
+    )
+    
+    parser.add_argument(
+        '--save-session',
+        type=str,
+        help='Сохранить контекст сессии в файл'
+    )
+    
+    parser.add_argument(
+        '--load-session',
+        type=str,
+        help='Загрузить контекст сессии из файла'
+    )
+    
     args = parser.parse_args()
     
     # Вывести баннер
@@ -258,6 +279,10 @@ async def main():
     try:
         # Инициализировать оркестратор
         orchestrator = AgentOrchestrator()
+        
+        # Загрузка сессии
+        if args.load_session:
+            orchestrator.load_session(args.load_session)
         
         # Список агентов
         if args.list:
@@ -276,16 +301,20 @@ async def main():
         
         # Оркестрация
         if args.orchestrate:
-            await run_orchestrated_task(orchestrator, args.task)
+            await run_orchestrated_task(orchestrator, args.task, args.output)
             return
         
         # Выполнение задачи одним агентом
         if args.agent:
-            await run_single_task(orchestrator, args.agent, args.task)
+            await run_single_task(orchestrator, args.agent, args.task, args.output)
             return
         
         # По умолчанию - оркестрация
-        await run_orchestrated_task(orchestrator, args.task)
+        await run_orchestrated_task(orchestrator, args.task, args.output)
+        
+        # Сохранение сессии
+        if args.save_session:
+            orchestrator.save_session(args.save_session)
         
     except Exception as e:
         console.print(f"\n[bold red]Критическая ошибка:[/bold red] {str(e)}")

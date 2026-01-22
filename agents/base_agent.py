@@ -114,6 +114,39 @@ class BaseAgent(ABC):
     def get_capabilities(self) -> Dict[str, str]:
         """Получить описание возможностей агента"""
         pass
+        
+    def save_result(self, content: str, directory: str = "results", filename: Optional[str] = None) -> str:
+        """
+        Сохранить результат агента в файл
+        
+        Args:
+            content: Содержимое для сохранения
+            directory: Директория
+            filename: Имя файла
+            
+        Returns:
+            Путь к файлу
+        """
+        from utils.files import save_text_to_file
+        
+        prefix = f"{self.name}_result"
+        return save_text_to_file(content, filename, directory, prefix)
+
+    def get_state(self) -> Dict[str, Any]:
+        """Получить текущее состояние агента (для сохранения)"""
+        return {
+            "name": self.name,
+            "role": self.role,
+            "history": self.history
+        }
+
+    def set_state(self, state: Dict[str, Any]):
+        """Восстановить состояние агента"""
+        if state.get("name") != self.name:
+            logger.warning(f"Загрузка состояния: имя агента не совпадает ({state.get('name')} != {self.name})")
+        
+        self.history = state.get("history", [])
+        logger.info(f"Восстановлена история агента {self.name}: {len(self.history)} записей")
     
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name='{self.name}', role='{self.role}')"
