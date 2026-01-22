@@ -50,7 +50,7 @@ def print_agents_table(orchestrator: AgentOrchestrator):
     console.print(table)
 
 
-async def run_single_task(orchestrator: AgentOrchestrator, agent_name: str, task: str, output_dir: str = None):
+async def run_single_task(orchestrator: AgentOrchestrator, agent_name: str, task: str, output_dir: str = None, input_file: str = None):
     """
     Выполнить задачу одним агентом
     
@@ -59,9 +59,18 @@ async def run_single_task(orchestrator: AgentOrchestrator, agent_name: str, task
         agent_name: Имя агента
         task: Задача для выполнения
         output_dir: Директория для сохранения результата
+        input_file: Путь к входному файлу
     """
     try:
-        result = await orchestrator.execute_single_task(agent_name, task, output_dir=output_dir)
+        context = {}
+        if input_file:
+            from utils.files import read_file_content
+            content = read_file_content(input_file)
+            context["file_content"] = content
+            context["file_path"] = input_file
+            task = f"{task}\n\nАнализируй файл: {input_file}"
+            
+        result = await orchestrator.execute_single_task(agent_name, task, context=context, output_dir=output_dir)
         
         # Вывести результат
         console.print("\n")
@@ -271,6 +280,13 @@ async def main():
         help='Загрузить контекст сессии из файла'
     )
     
+    parser.add_argument(
+        '--file',
+        '-f',
+        type=str,
+        help='Входной файл для анализа'
+    )
+    
     args = parser.parse_args()
     
     # Вывести баннер
@@ -306,7 +322,7 @@ async def main():
         
         # Выполнение задачи одним агентом
         if args.agent:
-            await run_single_task(orchestrator, args.agent, args.task, args.output)
+            await run_single_task(orchestrator, args.agent, args.task, args.output, args.file)
             return
         
         # По умолчанию - оркестрация

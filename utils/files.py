@@ -44,3 +44,27 @@ def save_text_to_file(
     except Exception as e:
         logger.error(f"[bold red]✗[/bold red] Ошибка при сохранении файла: {str(e)}")
         raise e
+
+def read_file_content(filepath: str) -> str:
+    """
+    Прочитать содержимое текстового файла
+    
+    Args:
+        filepath: Путь к файлу
+        
+    Returns:
+        Содержимое файла
+    """
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Файл не найден: {filepath}")
+        
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            content = f.read()
+            
+        logger.info(f"📄 Прочитан файл: {filepath} ({len(content)} символов)")
+        return content
+        
+    except Exception as e:
+        logger.error(f"[bold red]✗[/bold red] Ошибка чтения файла {filepath}: {str(e)}")
+        raise e
