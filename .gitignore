@@ -19,3 +19,7 @@ env/
 *.swp
 *.swo
 *~
+results/
+uploads/
+sessions/
+.agent/

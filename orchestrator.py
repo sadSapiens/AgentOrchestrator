@@ -42,6 +42,69 @@ class AgentOrchestrator:
         if not agent:
             raise ValueError(f"Агент '{agent_name}' не найден")
         return agent
+
+    def add_agent(self, agent_name: str, role: str, system_prompt: str, capabilities: Dict[str, str] = None) -> Any:
+        """
+        Динамически добавить нового агента
+        
+        Args:
+            agent_name: Имя агента
+            role: Роль агента
+            system_prompt: Системный промпт
+            capabilities: Словарь возможностей
+            
+        Returns:
+            Созданный экземпляр агента
+        """
+        from agents.generic import GenericAgent
+        
+        # Создаем нового агента
+        new_agent = GenericAgent(
+            name=agent_name.capitalize(),
+            role=role,
+            system_prompt=system_prompt,
+            capabilities=capabilities
+        )
+        
+        self.agents[agent_name.lower()] = new_agent
+        
+        # Обновляем промпт координатора, чтобы он знал о новом агенте
+        self._update_coordinator_knowledge()
+        
+        logger.info(f"[bold green]✓[/bold green] Добавлен новый агент: {agent_name} ({role})")
+        return new_agent
+        
+    def _update_coordinator_knowledge(self):
+        """Обновить системный промпт координатора списком всех агентов"""
+        try:
+            coordinator = self.get_agent("coordinator")
+            
+            # Формируем список агентов
+            agents_list = "Доступные агенты:\n"
+            for name, agent in self.agents.items():
+                if name == "coordinator": 
+                    continue
+                agents_list += f"            - {agent.name}: {agent.role}\n"
+            
+            # Находим место в промпте и заменяем (упрощенная логика)
+            # В идеале нужно использовать более надежный шаблон, но пока просто заменим блок "Доступные агенты"
+            import re
+            
+            # Ищем блок начинающийся с "Доступные агенты:" и до "Формат ответа"
+            pattern = r"(Доступные агенты:[\s\S]*?)(?=Формат ответа)"
+            
+            if re.search(pattern, coordinator.system_prompt):
+                coordinator.system_prompt = re.sub(
+                    pattern, 
+                    f"{agents_list}\n            ", 
+                    coordinator.system_prompt
+                )
+                logger.info("Промпт координатора обновлен")
+            else:
+                logger.warning("Не удалось найти секцию агентов в промпте координатора")
+                
+        except Exception as e:
+            logger.error(f"Ошибка обновления координатора: {e}")
     
     async def execute_single_task(
         self, 
