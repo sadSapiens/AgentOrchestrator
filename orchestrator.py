@@ -113,40 +113,97 @@ class AgentOrchestrator:
                     {"step": 3, "agent": "writer", "task": "Создай финальный отчет"}
                 ]
             
-            # Шаг 2: Выполнение плана
+            # Шаг 2: Выполнение плана (поддержка параллельного выполнения)
             context = {}
+            
+            # Группировка шагов по номеру
+            steps_by_id = {}
             for step_info in plan:
                 step_num = step_info.get("step", 0)
-                agent_name = step_info.get("agent", "").lower()
-                step_task = step_info.get("task", "")
+                if step_num not in steps_by_id:
+                    steps_by_id[step_num] = []
+                steps_by_id[step_num].append(step_info)
+            
+            # Сортировка по номеру шага
+            sorted_step_nums = sorted(steps_by_id.keys())
+            
+            for step_num in sorted_step_nums:
+                step_group = steps_by_id[step_num]
                 
-                if not agent_name or not step_task:
-                    continue
-                
-                logger.info(f"[bold yellow]Шаг {step_num}:[/bold yellow] {agent_name}")
-                
-                try:
-                    agent = self.get_agent(agent_name)
-                    result = await agent.execute(step_task, context)
+                # Если 1 задача, выполняем последовательно
+                if len(step_group) == 1:
+                    step_info = step_group[0]
+                    agent_name = step_info.get("agent", "").lower()
+                    step_task = step_info.get("task", "")
                     
-                    # Сохранить результат в контекст для следующих шагов
-                    context[f"{agent_name}_result"] = result
+                    if not agent_name or not step_task:
+                        continue
+                        
+                    logger.info(f"[bold yellow]Шаг {step_num}:[/bold yellow] {agent_name}")
                     
-                    results["steps"].append({
-                        "step": step_num,
-                        "agent": agent_name,
-                        "task": step_task,
-                        "result": result
-                    })
+                    try:
+                        agent = self.get_agent(agent_name)
+                        result = await agent.execute(step_task, context)
+                        
+                        context[f"{agent_name}_result"] = result
+                        results["steps"].append({
+                            "step": step_num,
+                            "agent": agent_name,
+                            "task": step_task,
+                            "result": result
+                        })
+                    except Exception as e:
+                        logger.error(f"Ошибка на шаге {step_num}: {str(e)}")
+                        results["steps"].append({
+                            "step": step_num,
+                            "agent": agent_name,
+                            "task": step_task,
+                            "error": str(e)
+                        })
+                        
+                else:
+                    # Параллельное выполнение
+                    logger.info(f"[bold yellow]Шаг {step_num}:[/bold yellow] Параллельное выполнение {len(step_group)} задач")
                     
-                except Exception as e:
-                    logger.error(f"Ошибка на шаге {step_num}: {str(e)}")
-                    results["steps"].append({
-                        "step": step_num,
-                        "agent": agent_name,
-                        "task": step_task,
-                        "error": str(e)
-                    })
+                    tasks = []
+                    step_indices = []
+                    
+                    for i, step_info in enumerate(step_group):
+                        agent_name = step_info.get("agent", "").lower()
+                        step_task = step_info.get("task", "")
+                        
+                        logger.info(f"  • {agent_name}: {step_task[:50]}...")
+                        
+                        try:
+                            agent = self.get_agent(agent_name)
+                            tasks.append(agent.execute(step_task, context))
+                            step_indices.append(i)
+                        except Exception as e:
+                            logger.error(f"Ошибка подготовки задачи для {agent_name}: {e}")
+                            
+                    if tasks:
+                        group_results = await asyncio.gather(*tasks, return_exceptions=True)
+                        
+                        for i, result in enumerate(group_results):
+                            original_info = step_group[step_indices[i]]
+                            agent_name = original_info.get("agent", "").lower()
+                            
+                            if isinstance(result, Exception):
+                                logger.error(f"Ошибка в параллельной задаче ({agent_name}): {result}")
+                                results["steps"].append({
+                                    "step": step_num,
+                                    "agent": agent_name,
+                                    "task": original_info.get("task"),
+                                    "error": str(result)
+                                })
+                            else:
+                                context[f"{agent_name}_result_{i}"] = result # Unique key
+                                results["steps"].append({
+                                    "step": step_num,
+                                    "agent": agent_name,
+                                    "task": original_info.get("task"),
+                                    "result": result
+                                })
             
             # Шаг 3: Финальный результат
             if results["steps"]:
