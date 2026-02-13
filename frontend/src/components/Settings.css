@@ -1,0 +1,214 @@
+.settings-container {
+    display: flex;
+    height: 100%;
+    background: var(--bg-color);
+}
+
+.settings-sidebar {
+    width: 240px;
+    border-right: 1px solid var(--border-color);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.settings-nav-item {
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.settings-nav-item:hover {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+}
+
+.settings-nav-item.active {
+    background: var(--surface-active);
+    color: var(--accent-blue);
+}
+
+.settings-main {
+    flex-grow: 1;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+/* Reusing existing classes but scoped or adjusted if needed */
+.settings-header {
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.section-desc {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 30px;
+}
+
+.settings-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 32px;
+    max-width: 600px;
+}
+
+.setting-group {
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.setting-group label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.setting-input {
+    background: var(--surface-hover);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 1rem;
+    color: var(--text-primary);
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.setting-input:focus {
+    border-color: var(--accent-blue);
+    background: var(--surface-active);
+}
+
+.save-btn {
+    background: var(--text-primary);
+    color: var(--bg-color);
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 20px;
+}
+
+.save-btn:hover {
+    background: #FFF;
+    transform: translateY(-1px);
+}
+
+.checkbox-group {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: var(--surface-hover);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    transition: border-color 0.2s;
+}
+
+.checkbox-group:hover {
+    border-color: var(--border-color);
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #34A853;
+    cursor: pointer;
+}
+
+.setting-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.setting-info label {
+    margin-bottom: 4px;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.setting-info .setting-desc {
+    margin-top: 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.theme-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    transition: all 0.2s;
+}
+
+.theme-option:hover {
+    background: var(--surface-hover);
+    transform: translateY(-2px);
+}
+
+.theme-option.active {
+    border-color: var(--accent-blue);
+    background: var(--surface-active);
+}
+
+.theme-preview {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-bottom: 4px;
+    border: 2px solid var(--border-color);
+}
+
+.theme-light {
+    background: #FFFFFF;
+}
+
+.theme-dark {
+    background: #141417;
+}
+
+.theme-blue {
+    background: #0d1117;
+}
+
+.theme-purple {
+    background: #130f1a;
+}
+
+.theme-green {
+    background: #0f1a15;
+}

@@ -1,89 +1,61 @@
-# 🤖 Agent Orchestrator с Gemini API & Web UI
+# Agent Orchestrator
 
-Мощный оркестратор AI-агентов, использующий Google Gemini API для выполнения сложных задач через координацию специализированных агентов. Теперь с современным веб-интерфейсом в стиле Gemini!
+An intelligent multi-agent orchestration system powered by Gemini 1.5 Flash. This system coordinates specialized AI agents (Researcher, Analyzer, Writer, Coordinator) to solve complex tasks autonomously.
 
-## 🌟 Новое: Современный Web UI
-Теперь вы можете управлять своей командой агентов через браузер. Интерфейс выполнен в глубокой темной теме с использованием лучших практик дизайна Gemini.
+## 📚 Documentation
 
-- 🎨 **Gemini 3 Style**: Эстетичный темный интерфейс с плавными анимациями.
-- ⚡ **Floating Chat Input**: Парящее поле ввода для максимального удобства.
-- 📂 **File context**: Загрузка файлов напрямую через браузер.
-- 📊 **Real-time Logs**: Наблюдайте за "мыслями" координатора в реальном времени.
+Complete documentation is available in the `docs/` directory:
 
-![Web UI](docs/images/web_ui_preview.png)
+- **Setup**:
+  - [Quick Start](docs/setup/quickstart.md): Get up and running in minutes.
+  - [Project Structure](docs/project_structure.md): Detailed overview of files and directories.
 
-## ✨ Возможности
+- **Guides**:
+  - [CLI Guide](docs/guides/cli.md): How to use the command-line interface.
+  - [Tutorial](docs/guides/tutorial.md): Step-by-step walkthrough of features.
 
-- 🤖 **Множественные специализированные агенты** - исследователь, аналитик, писатель и координатор.
-- 🌍 **Веб-поиск** - Researcher умеет искать актуальную информацию в интернете.
-- 🔄 **Умная оркестрация** - автоматическое планирование и координация сложных задач.
-- 💻 **Два режима работы** - современный Web UI и мощный CLI.
-- 📝 **Контекстная передача** - агенты обмениваются данными для достижения цели.
-- 🔧 **Легко расширяемый** - добавление нового агента занимает пару минут.
+- **Technical Reference**:
+  - [Architecture](docs/architecture.md): System design and components.
+  - [Diagrams](docs/diagrams.md): Visual representations of workflows.
 
-## 🚀 Быстрый старт
+## 🚀 Quick Start (Docker)
 
-### 1. Установка и запуск (Web UI)
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/yourusername/agent-orchestrator.git
+    cd agent-orchestrator
+    ```
 
+2.  **Configure Environment**:
+    copy `.env.example` to `.env` and add your `GEMINI_API_KEY`.
+
+3.  **Run with Docker Compose**:
+    ```bash
+    docker-compose up --build
+    ```
+
+4.  **Access the App**:
+    - Frontend: http://localhost:3000
+    - Backend API: http://localhost:8000
+
+## 🧪 Development
+
+### Backend
 ```bash
-# Клонировать проект
-git clone git@github.com:sadSapiens/AgentOrchestrator.git
-cd AgentOrchestrator
-
-# Настройте API ключ в .env (см. ниже)
-
-# Запустите Веб-интерфейс
-./venv/bin/streamlit run app.py
+cd backend
+make install
+make test
+make lint
 ```
 
-### 2. Настройка API ключа
-
+### Frontend
 ```bash
-cp .env.example .env
-# Добавьте ваш GEMINI_API_KEY в .env
-# Получить ключ: https://makersuite.google.com/app/apikey
+cd frontend
+make install
+make test
+make lint
 ```
 
-## 🎭 Агенты
+## License
 
-| Агент | Роль | Специализация |
-|-------|------|---------------|
-| 🔍 **Researcher** | Исследователь | Сбор информации в сети, поиск в Google/DDG |
-| 📊 **Analyzer** | Аналитик | Глубокий анализ данных и выявление трендов |
-| ✍️ **Writer** | Писатель | Создание структурированных статей и отчетов |
-| 🎯 **Coordinator** | Координатор | Построение стратегии и управление командой |
-
-## 💡 Способы использования
-
-### 1. Веб-приложение (Streamlit)
-Самый удобный способ. Запустите `streamlit run app.py` и откройте `localhost:8501`.
-
-### 2. Интерактивный CLI
-Запустите `./run.sh` для доступа к интерактивной консоли. Там можно выполнять команды типа `orchestrate "Создай отчет"`.
-
-### 3. Командная строка
-```bash
-python main.py --orchestrate --task "Проведи аудит безопасности этого проекта"
-```
-
-## 📚 Документация
-
-| Документ | Описание |
-|----------|----------|
-| [📖 QUICKSTART.md](QUICKSTART.md) | Руководство по быстрому старту |
-| [🎓 TUTORIAL.md](TUTORIAL.md) | Пошаговый туториал с примерами |
-| [🏗️ ARCHITECTURE.md](ARCHITECTURE.md) | Описание архитектуры |
-| [📋 SUMMARY.md](SUMMARY.md) | Краткая сводка всех возможностей v1.2 |
-
-## ⚙️ Конфигурация (.env)
-
-```env
-GEMINI_API_KEY=your-api-key
-MODEL_NAME=gemini-2.0-flash-exp
-TEMPERATURE=0.7
-LOG_LEVEL=INFO
-```
-
----
-
-**Создано с ❤️ используя Google Gemini API**
+MIT
